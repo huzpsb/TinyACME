@@ -7,7 +7,7 @@ It is not a full-featured ACME client, but it can be used to obtain and renew TL
 ## Why
 
 'Cause I don't f-ing care about most pare of the ACME protocol.  
-What I need is a darned TLS client and just give me that!
+What I need is a darned pem and just give me that!
 
 ## How
 
@@ -29,3 +29,4 @@ TinyACME是RFC8555的子集实现，它只使用了Go系统库（含x），并�
 
 `tinyacme <你的域名/ip>`  
 请确保80端口没有被占用。
+
