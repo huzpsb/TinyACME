@@ -17,12 +17,11 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
 const (
-	directoryURL = "https://acme-staging-v02.api.letsencrypt.org/directory"
+	directoryURL = "https://acme-v02.api.letsencrypt.org/directory"
 	email        = "i_dont@care.com"
 )
 
@@ -91,7 +90,7 @@ func main() {
 		fmt.Printf("Failed to download certificate: %v\n", err)
 		return
 	}
-	saveCertAndKey(cert, domain)
+	saveCertAndKey(cert)
 	fmt.Println("Certificate obtained successfully!")
 }
 
@@ -228,7 +227,9 @@ func processAuthorization(authzURL, domain string) error {
 
 func finalizeOrder(finalizeURL, orderURL string, domain string) (*Order, error) {
 	template := x509.CertificateRequest{
-		Subject: pkix.Name{},
+		Subject: pkix.Name{
+			CommonName: "TinyACME User",
+		},
 	}
 	if ip := net.ParseIP(domain); ip != nil {
 		template.IPAddresses = []net.IP{ip}
@@ -309,10 +310,8 @@ func stopHTTPServer() {
 	}
 }
 
-func saveCertAndKey(cert, domain string) {
-	var filePrefix string
-	filePrefix = strings.Replace(domain, ".", "-", -1)
-	certFile := fmt.Sprintf("%s-cert.pem", filePrefix)
+func saveCertAndKey(cert string) {
+	certFile := fmt.Sprintf("cert.cer")
 	if err := os.WriteFile(certFile, []byte(cert), 0777); err != nil {
 		fmt.Printf("Failed to save certificate: %v\n", err)
 		return
@@ -327,7 +326,7 @@ func saveCertAndKey(cert, domain string) {
 		Type:  "EC PRIVATE KEY",
 		Bytes: keyDER,
 	})
-	keyFile := fmt.Sprintf("%s-key.pem", filePrefix)
+	keyFile := fmt.Sprintf("key.pem")
 	if err := os.WriteFile(keyFile, keyPEM, 0777); err != nil {
 		fmt.Printf("Failed to save private key: %v\n", err)
 		return
